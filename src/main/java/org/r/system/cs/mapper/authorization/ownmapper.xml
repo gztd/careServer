@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.authorization.OwnFileDao">
+
+	<resultMap type="map" id="own_list">
+		<result column="id" property="id" />
+		<result column="name" property="name" />
+	</resultMap>
+
+	<insert id="insertOwnFile">
+		insert into cs_own(role_id,res_id) values
+		<foreach collection="auths" item="resId" separator=",">
+			(#{roleId},#{resId})
+		</foreach>
+	</insert>
+
+	<delete id="deleteOwnFile">
+		delete from cs_own
+		<where>
+			<if test="roleId != null and authId == null">
+				role_id = #{roleId}
+			</if>
+			<if test="roleId == null and authId != null">
+				res_id = #{authId}
+			</if>
+			<if test="roleId != null and authId != null">
+				role_id = #{roleId} and res_id = #{authId}
+			</if>
+		</where>
+	</delete>
+
+	<select id="selectOwnFile" resultMap="own_list">
+		select res.id,res.name from cs_own own left join cs_resources res on own.res_id = res.id
+		<where>
+			own.role_id = #{roleId}
+		</where>
+	</select>
+
+</mapper>

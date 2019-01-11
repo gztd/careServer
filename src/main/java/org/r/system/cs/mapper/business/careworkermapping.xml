@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.business.CareworkerDao">
+
+	<sql id="query_list_condition">
+		<where>
+			<if test="name != null">
+				name like concat(concat('%',#{name}),'%')
+			</if>
+			<if test="orgId != null">
+				and org_id = #{orgId}
+			</if>
+			<if test="isOnWork != null and isOnWork">
+				and end_date_time is null
+			</if>
+			<if test="careworkerId != null">
+				and id = #{careworkerId}
+			</if>
+			<if test="careworkerCode != null">
+				and code = #{careworkerCode}
+			</if>
+			<if test="projectId != null">
+				and project_id = #{projectId}
+			</if>
+		</where>
+	</sql>
+
+	<insert id="insertFile" useGeneratedKeys="true" keyColumn="id" keyProperty="id" parameterType="org.r.system.cs.entity.business.CareworkerEntity">
+		insert into cs_careworker(code,project_id,name) value(#{code},#{projectId},#{name})
+	</insert>
+
+	<select id="selectCareworkerInfo" resultType="org.r.system.cs.dto.business.CareworkerInfoDTO">
+		select 
+		id as careworkerId,
+		code,
+		name,
+		org_id as orgId,
+		org_name as orgName,
+		project_id as projectId,
+		start_date_time as startDateTime,
+		end_date_time as endDateTime
+		from cs_view_careworker_info
+		<include refid="query_list_condition"/>
+		<if test="pageSize != null">
+			limit #{curPage},#{pageSize}
+		</if>
+	</select>
+	
+	<select id="countFileList" resultType="int">
+		select count(*)
+		from cs_view_careworker_info
+		<include refid="query_list_condition"/>
+	</select>
+
+</mapper>

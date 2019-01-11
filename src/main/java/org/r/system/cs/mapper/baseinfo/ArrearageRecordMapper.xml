@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="org.r.system.cs.dao.baseinfo.ArrearageRecordDao">
+
+	<select id="countArrearageListLength" resultType="int">
+		select count(*) from cs_arrearage_info
+		tr
+		left join cs_patient pa on
+		tr.patient_id=pa.id
+		where pa.code=#{code}
+		<if test="startDate != null">
+		<![CDATA[
+		and DATE_FORMAT(#{startDate},"%Y-%m-%d") <=
+		DATE_FORMAT(date,"%Y-%m-%d")
+		 ]]>
+		</if>
+		<if test="endDate != null">
+		<![CDATA[
+		and DATE_FORMAT(#{endDate},"%Y-%m-%d") >=
+		DATE_FORMAT(date,"%Y-%m-%d")
+		 ]]>
+		</if>
+	</select>
+	<select id="selectArrearageList"
+		resultType="org.r.system.cs.entity.baseinfo.ArrearageEntity">
+		select date,record_code as recordCode,project_id as
+		projectId,hospital_name as hospitalName,money from cs_arrearage_info
+		tr
+		left join cs_patient pa on tr.patient_id=pa.id
+		where pa.code=#{code}
+		<if test="startDate != null">
+		<![CDATA[
+		and DATE_FORMAT(#{startDate},"%Y-%m-%d") <=
+		DATE_FORMAT(date,"%Y-%m-%d")
+		 ]]>
+		</if>
+		<if test="endDate != null">
+		<![CDATA[
+		and DATE_FORMAT(#{endDate},"%Y-%m-%d") >=
+		DATE_FORMAT(date,"%Y-%m-%d")
+		 ]]>
+		</if>
+		limit #{curPage},#{pageSize}
+	</select>
+
+
+</mapper>

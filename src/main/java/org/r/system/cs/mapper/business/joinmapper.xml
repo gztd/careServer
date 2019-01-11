@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.business.JoinDao">
+
+	<sql id="join_table_column">
+		careworker_id,
+		org_id,
+		start_date_time,
+		end_date_time
+	</sql>
+
+	<sql id="query_join_list_condition">
+		<where>
+			<if test="careworkerId">
+				careworker_id = #{careworkerId}
+			</if>
+			<if test="orgId != null">
+				and org_id = #{orgId}
+			</if>
+			<if test="isNewly != null and isNewly">
+				and end_date_time is null
+			</if>
+		</where>
+	</sql>
+
+	<resultMap type="org.r.system.cs.entity.business.JoinEntity"
+		id="join_entity">
+		<result column="careworker_id" property="careworkerId" />
+		<result column="org_id" property="orgId" />
+		<result column="start_date_time" property="startDateTime" />
+		<result column="end_date_time" property="endDateTime" />
+	</resultMap>
+
+
+	<!-- 添加陪护人员与科室的关系 -->
+	<insert id="insertFile"
+		parameterType="org.r.system.cs.entity.business.JoinEntity">
+		insert into cs_join
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="careworkerId != null and careworkerId !=''">
+				careworker_id,
+			</if>
+			<if test="orgId != null and orgId !=''">
+				org_id,
+			</if>
+			<if test="startDateTime != null and startDateTime !=''">
+				start_date_time
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="careworkerId != null and careworkerId !=''">
+				#{careworkerId},
+			</if>
+			<if test="orgId != null and orgId !=''">
+				#{orgId},
+			</if>
+			<if test="startDateTime != null and startDateTime !=''">
+				#{startDateTime}
+			</if>
+		</trim>
+	</insert>
+
+	<select id="selectFileList" resultMap="join_entity">
+		select
+		<include refid="join_table_column" />
+		from cs_join
+		<include refid="query_join_list_condition" />
+		<if test="pageSize != null">
+			limit #{curPage},#{pageSize}
+		</if>
+	</select>
+
+	<select id="countFileList" resultType="int">
+		select
+		count(*)
+		from cs_join
+		<include refid="query_join_list_condition" />
+	</select>
+
+	<update id="updateFile">
+		update cs_join
+		<set>
+			end_date_time = #{endDateTime}
+		</set>
+		where 
+		careworker_id = #{careworkerId}
+		and org_id = #{orgId}
+		and
+		start_date_time = #{startDateTime}
+	</update>
+	
+
+</mapper>
+
+
+

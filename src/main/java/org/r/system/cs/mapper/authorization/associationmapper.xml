@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="org.r.system.cs.dao.authorization.AssociationDao">
+
+	<resultMap type="map" id="list">
+		<result column="id" property="id"/>
+		<result column="name" property="name"/>
+	</resultMap>
+
+	<insert id="insertAssociationFile">
+		insert into cs_associate
+		<trim prefix="(" suffix=")">
+			<if test="projectId != null">
+				business_db_id,
+			</if>
+			<if test="createDate != null">
+				create_time,
+			</if>
+			username,
+			role_id
+		</trim>
+		values
+		<foreach collection="roleId" item="roleId" separator=",">
+			<trim prefix="(" suffix=")">
+				<if test="projectId != null">
+					#{projectId},
+				</if>
+				<if test="createDate != null">
+					#{createDate},
+				</if>
+				#{username},
+				#{roleId}
+			</trim>
+		</foreach>
+	</insert>
+
+	<delete id="deleteAssociationFile">
+		delete from cs_associate
+		where username = #{username}
+		and business_db_id = #{projectId}
+	</delete>
+
+	<select id="selectProjectAssosciationFile" resultMap="list">
+		select distinct bus.id as id,bus.name as name
+		from cs_associate asso left join cs_business_db bus on asso.business_db_id
+		= bus.id
+		where asso.username = #{username}
+
+	</select>
+
+	<select id="selectRoleAssociationFile" resultMap="list">
+		select distinct cs_role.id as id,cs_role.role_name as name
+		from cs_associate asso left join cs_business_db bus on asso.business_db_id
+		= bus.id
+		left join cs_role on asso.role_id = cs_role.id
+		where
+		asso.username = #{username} and business_db_id = #{projectId}
+	</select>
+
+
+
+</mapper>

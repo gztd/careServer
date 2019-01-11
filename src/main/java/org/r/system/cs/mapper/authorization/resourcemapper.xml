@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.authorization.ResourceDao">
+
+	<resultMap type="map" id="list">
+		<result column="name" property="name" />
+		<result column="id" property="id" />
+		<result column="fa_id" property="faId" />
+		<result column="uri" property="path" />
+		<result column="componet" property="component" />
+	</resultMap>
+
+
+	<select id="selectResouceList" resultMap="list">
+		select id,name
+		from
+		cs_resources
+		where fa_id is not null
+	</select>
+	
+	<select id="selectResourcesList" resultType="org.r.system.cs.entity.authorization.ResourceEntity">
+		select 
+		id,
+		fa_id as faId,
+		name,
+		uri,
+		type,
+		componet,
+		icon,
+		scope,
+		request_method as requestMethod,
+		is_disabled as isDisabled,
+		is_require_auth as isRequireAuth,
+		version
+		from
+		cs_resources
+	</select>
+
+	<select id="selectModule" resultMap="list">
+		select distinct b.id,b.name
+		from cs_associate
+		left join cs_role on
+		cs_associate.role_id =
+		cs_role.id
+		left join cs_own on cs_role.id =
+		cs_own.role_id
+		left join
+		cs_resources a on cs_own.res_id = a.id
+		left join
+		cs_resources b on
+		a.fa_id = b.id
+		where cs_associate.username =
+		#{username}
+		and b.is_disabled = 0
+		<if test="projectId != null">
+			and cs_associate.business_db_id=#{projectId}
+		</if>
+		
+
+	</select>
+
+	<select id="selectFunction" resultMap="list">
+
+		SELECT DISTINCT
+		a.id,a.name,a.fa_id,a.uri,a.componet FROM cs_associate
+		LEFT JOIN
+		cs_role ON cs_associate.role_id = cs_role.id
+		LEFT JOIN cs_own ON
+		cs_role.id = cs_own.role_id
+		LEFT JOIN cs_resources a ON cs_own.res_id =
+		a.id
+		where cs_associate.username = #{username} and a.fa_id=#{resId}
+		<if test="projectId != null">
+			and cs_associate.business_db_id=#{projectId}
+		</if>
+
+	</select>
+	
+	<update id="updateFile" >
+		update cs_resources
+		set componet = #{componet}
+		where id = #{id}
+	</update>
+
+</mapper>

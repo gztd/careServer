@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.business.CareTypeDao">
+
+	<sql id="care_type_table_column">
+		id,
+		name,
+		price,
+		is_default,
+		salary_index,
+		settle_type,
+		project_id,
+		property
+	</sql>
+	
+	<sql id="query_care_type_list_condition">
+		<where>
+			<if test="name != null">
+				name like concat(concat('%',#{name}),'%')
+			</if>
+			<if test="property != null">
+				and property = #{property}
+			</if>
+			<if test="projectId != null">
+				and project_id = #{projectId}
+			</if>
+		</where>
+	</sql>
+
+	<resultMap
+		type="org.r.system.cs.entity.business.CareTypeEntity"
+		id="care_type_entity">
+		<result column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="price" property="price" />
+		<result column="is_default" property="isDefault" />
+		<result column="salary_index" property="salaryIndex" />
+		<result column="settle_type" property="settleType" />
+		<result column="project_id" property="projectId" />
+		<result column="property" property="property" />
+
+	</resultMap>
+
+	<select id="selectFile" resultMap="care_type_entity">
+		select
+		<include refid="care_type_table_column" />
+		from cs_care_type
+		where id = #{primaryKey}
+
+	</select>
+
+	<insert id="insertFile" useGeneratedKeys="true" keyColumn="id"
+		keyProperty="id">
+		insert into cs_care_type
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			id,
+			name,
+			price,
+			salary_index,
+			project_id,
+			<if test="isDefault != null">
+				is_default,
+			</if>
+			<if test="property != null">
+				property,
+			</if>
+			<if test="settleType != null">
+				settle_type,
+			</if>
+		</trim>
+		value
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			#{id},
+			#{name},
+			#{price},
+			#{salaryIndex},
+			#{projectId},
+			<if test="isDefault != null">
+				#{isDefault},
+			</if>
+			<if test="property != null">
+				#{property},
+			</if>
+			<if test="settleType != null">
+				#{settleType},
+			</if>
+		</trim>
+	</insert>
+
+	<update id="updateFile">
+	</update>
+	
+	<select id="selectFileList" resultMap="care_type_entity">
+		select
+		<include refid="care_type_table_column" />
+		from cs_care_type
+		<include refid="query_care_type_list_condition"/>
+		<if test="pageSize != null">
+			limit #{curPage},#{pageSize}
+		</if>
+	</select>
+
+	<select id="countFileList" resultType="int">
+		select
+		count(*)
+		from cs_care_type
+		<include refid="query_care_type_list_condition"/>
+	</select>
+
+	<delete id="deleteFile">
+		delete from cs_care_type
+		where id = #{primaryKey}
+	</delete>
+
+</mapper>

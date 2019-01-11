@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.baseinfo.EmployeeDao">
+
+
+	<!-- 添加员工信息资料 -->
+	<insert id="insertEmployee"
+		parameterType="org.r.system.cs.dto.baseinfo.EmployeeDTO"
+		keyProperty="id" useGeneratedKeys="true" keyColumn="id">
+		insert into cs_employee
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="code != null and code !=''">
+				code,
+			</if>
+			<if test="name != null and name !=''">
+				name,
+			</if>
+			<if test="idcard != null and idcard !=''">
+				id_card,
+			</if>
+			<if test="sex != null ">
+				sex,
+			</if>
+			<if test="phone != null and phone !=''">
+				phone,
+			</if>
+			<if test="address != null and address !=''">
+				address,
+			</if>
+			<if test="jodtitle != null">
+				jod_title
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+
+			<if test="code != null and code !=''">
+				#{code},
+			</if>
+			<if test="name != null and name !=''">
+				#{name},
+			</if>
+			<if test="idcard != null and idcard !=''">
+				#{idcard},
+			</if>
+			<if test="sex != null ">
+				#{sex},
+			</if>
+			<if test="phone != null and phone!=''">
+				#{phone},
+			</if>
+			<if test="address != null and address !=''">
+				#{address},
+			</if>
+			<if test="jodtitle != null">
+				#{jodtitle}
+			</if>
+		</trim>
+	</insert>
+
+	<!-- 根据记录号查询员工编号 -->
+	<select id="selectByid"
+		resultType="org.r.system.cs.dto.baseinfo.EmployeeDTO">
+		select
+		id,
+		code as code,
+		id_card as idcard,
+		name as name,
+		sex as
+		sex,
+		phone,
+		address,
+		jod_title as jodtitle
+		from cs_employee
+		where 1=1 and
+		id = #{id}
+
+	</select>
+	<!-- 查询员工信息列表 -->
+
+	<select id="selectByCondition"
+		parameterType="org.r.system.cs.dto.baseinfo.EmpinfoDTO"
+		resultType="org.r.system.cs.dto.baseinfo.EmployeeDTO">
+		select
+		id,
+		code as code,
+		id_card as idcard,
+		name as name,
+		sex as sex,
+		phone,
+		address,
+		jod_title as jodtitle
+		from cs_employee
+		where 1=1
+		<if test="code != null and code != ''">
+			and code like concat("%",concat(#{code},"%"))
+		</if>
+		<if test="idCard != null and idCard != ''">
+			and id_card like concat("%",concat(#{idcard},"%"))
+		</if>
+		<if test="name != null and name != ''">
+			and name like concat("%",concat(#{name},"%"))
+		</if>
+		limit #{curPage},#{pageSize}
+	</select>
+
+
+	<select id="selectListCount"
+		parameterType="org.r.system.cs.dto.baseinfo.EmpinfoDTO"
+		resultType="int">
+		select COUNT(*) AS count from cs_employee
+		where 1=1
+		<if test="code != null and code != ''">
+			and code like concat("%",concat(#{code},"%"))
+		</if>
+		<if test="idCard != null and idCard != ''">
+			and id_card like concat("%",concat(#{idcard},"%"))
+		</if>
+		<if test="name != null and name != ''">
+			and name like concat("%",concat(#{name},"%"))
+		</if>
+	</select>
+
+
+
+
+
+	<!-- 查询员工信息资料 -->
+	<select id="selectByCodeAndidCard" parameterType="String"
+		resultType="org.r.system.cs.dto.baseinfo.EmployeeDTO">
+		select
+		id,
+		code as code,
+		id_card as idcard,
+		name as name,
+		sex as sex,
+		phone,
+		address,
+		jod_title as jodtitle
+		from cs_employee
+		where 1=1
+		<if test="code != null and code != ''">
+			and code= #{code}
+		</if>
+		<if test="idcard != null and idcard != ''">
+			and id_card =#{idcard}
+		</if>
+	</select>
+
+	<!-- 修改员工信息 -->
+	<update id="updataEmployeeinfo"
+		parameterType="org.r.system.cs.dto.baseinfo.EmployeeDTO">
+		update cs_employee
+		<set>
+			<if test="idcard != null and idcard !=''">
+				id_card = #{idcard},
+			</if>
+			<if test="name != null and name !=''">
+				name = #{name},
+			</if>
+			<if test="sex != null ">
+				sex = #{sex},
+			</if>
+			<if test="phone != null and phone !=''">
+				phone = #{phone},
+			</if>
+			<if test="address != null and address !=''">
+				address = #{address},
+			</if>
+			<if test="jodtitle != null">
+				jod_title = #{jodtitle},
+			</if>
+		</set>
+		where code = #{code}
+
+	</update>
+
+
+
+</mapper>

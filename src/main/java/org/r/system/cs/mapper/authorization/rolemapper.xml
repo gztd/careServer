@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.authorization.RoleFileDao">
+
+	<resultMap type="map" id="rolelist">
+		<result column="id" property="id" />
+		<result column="role_name" property="roleName" />
+		<result column="is_disabled" property="isDisabled" />
+	</resultMap>
+
+	<sql id="query_role_list">
+
+		from cs_role
+		where 1=1
+		<if test="roleName != null">
+			and role_name like concat('%',concat(#{roleName},'%'))
+		</if>
+		<if test="isDisabled != null">
+			and is_disabled = #{isDisabled}
+		</if>
+	</sql>
+
+	<select id="selectRoleFile"
+		resultType="org.r.system.cs.entity.authorization.RoleFileEntity">
+		select id, role_name as roleName, is_disabled as isDisabled
+		from cs_role
+		where id = #{id}
+	</select>
+	<insert id="insertRoleFile" useGeneratedKeys="true"
+		keyProperty="id">
+		insert into cs_role
+		<trim prefix="(" suffix=")">
+			<if test="isDisabled != null">
+				is_disabled,
+			</if>
+			role_name
+		</trim>
+		value
+		<trim prefix="(" suffix=")">
+			<if test="isDisabled != null">
+				#{isDisabled},
+			</if>
+			#{roleName}
+		</trim>
+	</insert>
+	<update id="updateRoleFile">
+		update cs_role
+		<set>
+			<if test="roleName != null">
+				role_name = #{roleName},
+			</if>
+			<if test="isDisabled != null">
+				is_disabled = #{isDisabled},
+			</if>
+			id = id
+		</set>
+		where id = #{id}
+	</update>
+	<select id="selectRoleFileList" resultMap="rolelist">
+		select id, role_name, is_disabled
+		<include refid="query_role_list" />
+		limit #{curPage},#{pageSize}
+	</select>
+	<select id="countRoleFileListLength" resultType="int">
+		select count(*)
+		<include refid="query_role_list" />
+	</select>
+
+</mapper>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.business.OrderDao">
+
+	<sql id="order_table_column">
+		id,
+		code,
+		patient_code as patientCode,
+		name,
+		hospitalized_date as hospitalizedDate,
+		leave_date as leaveDate,
+		clerk,
+		project_id as projectId,
+		balance,
+		phone
+	</sql>
+	
+	<sql id="query_order">
+		select 
+		<include refid="order_table_column"/>
+		from cs_service_order
+	</sql>
+	
+	<sql id="query_condition">
+		<where>
+			project_id = #{projectId}
+			<if test="code != null">
+				and patient_code like concat('%',concat(#{code},'%'))
+			</if>
+			<if test="name != null">
+				and name like concat('%',concat(#{name},'%'))
+			</if>
+			<if test="contact != null">
+				and phone like concat('%',concat(#{contact},'%'))
+			</if>
+			<if test="startDate != null">
+			<![CDATA[
+				and date_format(hospitalized_date,"%Y-%m-%d") >=
+			date_format(#{startDate},"%Y-%m-%d")
+			]]>
+			</if>
+			<if test="endDate != null">
+			<![CDATA[
+				and date_format(hospitalized_date,"%Y-%m-%d") <=
+			date_format(#{endDate},"%Y-%m-%d")
+			]]>
+			</if>
+			<if test="isOnHospital != null and isOnHospital">
+				and leave_date is null
+			</if>
+		</where>
+	</sql>
+
+
+	<insert id="insertFile" useGeneratedKeys="true" keyColumn="id"
+		keyProperty="id"
+		parameterType="org.r.system.cs.entity.business.OrderEntity">
+		insert into
+		cs_service_order(code,patient_code,name,hospitalized_date,clerk,project_id,phone)
+		value(#{code},#{patientCode},#{name},#{hospitalizedDate},#{clerk},#{projectId},#{phone})
+	</insert>
+	
+	<update id="updateFile" parameterType="org.r.system.cs.entity.business.OrderEntity">
+		update cs_service_order
+		<set>
+			<if test="leaveDate != null">
+				leave_date = #{leaveDate},
+			</if>
+			<if test="balance != null">
+				balance = #{balance}
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+	
+	
+	
+	<select id="selectFile"
+		resultType="org.r.system.cs.entity.business.OrderEntity">
+		<include refid="query_order"/>
+		where id = #{id}
+	</select>
+	
+	<select id="selectFileList" resultType="org.r.system.cs.entity.business.OrderEntity" parameterType="org.r.system.cs.dto.business.SearchConditionDTO">
+		<include refid="query_order"/>
+		<include refid="query_condition"/>
+		limit #{curPage},#{pageSize}
+	</select>
+	<select id="countFileList" resultType="int">
+		select count(*) from cs_service_order
+		<include refid="query_condition"/>
+	</select>
+
+	<select id="selectFileByCode"
+		resultType="org.r.system.cs.entity.business.OrderEntity">
+		<include refid="query_order"/>
+		where code = #{orderCode}
+	</select>
+
+</mapper>

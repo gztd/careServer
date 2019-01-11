@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.business.RequestDao">
+
+
+	<sql id="query_request_entity">
+		select
+		code,
+		order_id as orderId,
+		care_type_id as careTypeId,
+		start_date_time as startDateTime,
+		end_date_time as endDateTime,
+		bed_num as bedNum,
+		clerk,
+		org_id as orgId
+		from
+		cs_service_request
+	</sql>
+
+
+	<insert id="insertFile" useGeneratedKeys="true" keyColumn="id"
+		keyProperty="id">
+		insert into
+		cs_service_request(code,order_id,care_type_id,start_date_time,bed_num,clerk,org_id)
+		value(#{code},#{orderId},#{careTypeId},#{startDateTime},#{bedNum},#{clerk},#{orgId})
+	</insert>
+
+
+
+	<update id="updateFile">
+		update cs_service_request
+		<set>
+			<if test="endDateTime != null">
+				end_date_time = #{endDateTime},
+			</if>
+			<if test="bedNum != null">
+				bed_num = #{bedNum}
+			</if>
+		</set>
+		where code = #{code}
+	</update>
+	<select id="selectFile" resultType="org.r.system.cs.entity.business.RequestEntity">
+		<include refid="query_request_entity" />
+		where code = #{primaryKey}
+	</select>
+	<select id="selectFileList"></select>
+	<select id="countFileList"></select>
+
+	<select id="selectNewlyRequest"
+		resultType="org.r.system.cs.entity.business.RequestEntity">
+		<include refid="query_request_entity" />
+		where order_id = #{orderId} and
+		end_date_time is null
+	</select>
+
+	<select id="selectRequest"
+		resultType="org.r.system.cs.entity.business.RequestEntity">
+		<include refid="query_request_entity" />
+		where order_id = #{orderId}
+	</select>
+
+	<select id="selectRequestDetail"
+		resultType="org.r.system.cs.entity.business.RequestDetailEntity">
+		select
+		code,
+		order_id as orderId,
+		care_type_id as careTypeId,
+		start_date_time as startDateTime,
+		end_date_time as endDateTime,
+		bed_num as bedNum,
+		clerk,
+		care_type_name as
+		careTypeName,
+		price,
+		property,
+		settle_type as settleType,
+		org_id as orgId,
+		org_name as orgName
+		from cs_view_request_detail
+		<where>
+			<if test="orderId != null">
+				and order_id = #{orderId}
+			</if>
+			<if test="code != null">
+				and code = #{code}
+			</if>
+			<if test="orgId != null">
+				and org_id = #{orgId}
+			</if>
+		</where>
+		<if test="isNewly != null and isNewly">
+			order by start_date_time desc
+			limit 1
+		</if>
+	</select>
+
+</mapper>

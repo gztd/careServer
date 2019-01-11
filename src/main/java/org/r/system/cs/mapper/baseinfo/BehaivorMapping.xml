@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.baseinfo.BehaivorDao">
+
+
+	<!-- 添加行为记录 -->
+	<insert id="insertBehaivor"
+		parameterType="org.r.system.cs.dto.baseinfo.BehaivorDTO">
+		insert into cs_behaivor_info
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="code != null and code !=''">
+				code,
+			</if>
+			<if test="datetime != null and datetime !=''">
+				date_time,
+			</if>
+			<if test="event != null and event !=''">
+				event,
+			</if>
+			<if test="recordcode != null and recordcode !=''">
+				record_code,
+			</if>
+			<if test="projectid != 0 ">
+				project_id,
+			</if>
+			<if test="grade != 0 ">
+				grade,
+			</if>
+			<if test="employeeid != null and employeeid !=''">
+				employee_id
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="code != null and code !=''">
+				#{code},
+			</if>
+			<if test="datetime != null and datetime !=''">
+				#{datetime},
+			</if>
+			<if test="event != null and event !=''">
+				#{event},
+			</if>
+			<if test="recordcode != null and recordcode !=''">
+				#{recordcode},
+			</if>
+			<if test="projectid != 0 ">
+				#{projectid},
+			</if>
+			<if test="grade != 0 ">
+				#{grade},
+			</if>
+			<if test="employeeid != null and employeeid !=''">
+				#{employeeid}
+			</if>
+		</trim>
+	</insert>
+
+	<!-- 查询行为记录列表 -->
+	<select id="selectByBehaivorinfo"
+		parameterType="org.r.system.cs.dto.baseinfo.EmpinfoDTO"
+		resultType="org.r.system.cs.dto.baseinfo.BehaivorDTO">
+		SELECT
+		cs_employee.code AS code,
+		cs_employee.name,
+		cs_employee.phone,
+		cs_employee.id_card AS idcard,
+		date_time AS datetime,
+		event,
+		record_code AS recordcode,
+		project_id AS projectid,
+		employee_id AS employeeid
+		FROM cs_behaivor_info
+		LEFT JOIN cs_employee ON cs_employee.id =
+		cs_behaivor_info.employee_id
+		where 1=1
+		<if test="code != null and code != ''">
+			and cs_employee.code like "%"#{code}"%"
+		</if>
+		<if test="idcard != null and idcard != ''">
+			and id_card like "%"#{idcard}"%"
+		</if>
+		<if test="name != null and name != ''">
+			and name like "%"#{name}"%"
+		</if>
+		<if test="phone != null and phone != ''">
+			and phone like "%"#{phone}"%"
+		</if>
+		<if
+			test="startdate != null and enddate != null  and enddate != '' and startdate != ''">
+			and date_time BETWEEN #{startdate} AND #{enddate}
+		</if>
+		limit #{curpage},#{pagesize}
+	</select>
+
+
+	<!-- 查询行为记录列表总条数 -->
+	<select id="selectbListCount"
+		parameterType="org.r.system.cs.dto.baseinfo.EmpinfoDTO"
+		resultType="int">
+		select COUNT(*) AS count FROM cs_behaivor_info
+		LEFT JOIN cs_employee ON
+		cs_employee.id = cs_behaivor_info.employee_id
+		where 1=1
+		<if test="code != null and code != ''">
+			and cs_employee.code like "%"#{code}"%"
+		</if>
+		<if test="idcard != null and idcard != ''">
+			and id_card like "%"#{idcard}"%"
+		</if>
+		<if test="name != null and name != ''">
+			and name like "%"#{name}"%"
+		</if>
+		<if test="phone != null and phone != ''">
+			and phone like "%"#{phone}"%"
+		</if>
+		<if
+			test="startdate != null and enddate != null  and enddate != '' and startdate != ''">
+			and date_time BETWEEN #{startdate} AND #{enddate}
+		</if>
+	</select>
+
+
+
+	<!-- 查询行为记录资料 -->
+	<select id="selectByCode"
+		resultType="org.r.system.cs.dto.baseinfo.BehaivorDTO">
+		SELECT
+		cs_employee.code AS code,
+		cs_employee.name,
+		cs_employee.phone,
+		cs_employee.id_card AS idcard,
+		date_time AS datetime,
+		event,
+		record_code AS recordcode,
+		project_id AS projectid,
+		employee_id AS employeeid
+		FROM cs_behaivor_info
+		LEFT JOIN cs_employee ON cs_employee.id =
+		cs_behaivor_info.employee_id
+		where 1=1
+		<if test="code != null and code != ''">
+			and cs_employee.code =#{code}
+		</if>
+	</select>
+
+
+
+
+</mapper>

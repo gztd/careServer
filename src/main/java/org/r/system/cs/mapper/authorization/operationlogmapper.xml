@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.authorization.OperationLogFileDao">
+
+
+	<sql id="log_table_column">
+		id,
+		operation_name as operationName,
+		operator as operator,
+		date_time as dateTime,
+		interface as interfaces,
+		time_consuming as timeConsuming,
+		ip_address as ipAddress
+		
+	</sql>
+	<sql id="query_condition">
+		<where>
+			<if test="startDate != null and endDate != null">
+				<![CDATA[
+				date_format(date_time,"%Y-%m-%d") >=
+			date_format(#{startDate},"%Y-%m-%d")
+				and date_format(date_time,"%Y-%m-%d") <=
+			date_format(#{endDate},"%Y-%m-%d")
+			]]>
+			</if>
+			<if test="username != null">
+				and operator = #{username}
+			</if>
+		</where>
+		
+	</sql>
+
+
+	<insert id="insertFile">
+		insert into cs_log(
+		operation_name,
+		operator,
+		date_time,
+		interface,
+		time_consuming,
+		ip_address)
+		value(
+		#{operationName},
+		#{operator},
+		#{dateTime},
+		#{interfaces},
+		#{timeConsuming},
+		#{ipAddress}
+		)
+	</insert>
+	
+	<select id="selectFileList" resultType="org.r.system.cs.entity.authorization.LogEntity">
+		select 
+		<include refid="log_table_column"/>
+		from cs_log
+		<include refid="query_condition"/>
+		limit #{curPage},#{pageSize}
+	</select>
+	
+	<select id="countList" resultType="int">
+		select 
+		count(*)
+		from cs_log
+		<include refid="query_condition"/>
+	</select>
+
+</mapper>

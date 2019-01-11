@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.baseinfo.PatientFileDao">
+
+	<resultMap type="org.r.system.cs.entity.baseinfo.PatientEntity" id="patientlistinfo">
+		<result column="id" property="id" />
+		<result column="code" property="code" />
+		<result column="id_card" property="idCard" />
+		<result column="phone" property="phone" />
+		<result column="name" property="name" />
+		<result column="sex" property="sex" />
+		<result column="balance" property="balance" />
+		<result column="address" property="address" />
+		<result column="linkman" property="linkman" />
+	</resultMap>
+
+	<sql id="patient_table">
+		id,
+		code,
+		id_card,
+		name,
+		sex,
+		balance,
+		address,
+		phone,
+		linkman
+	</sql>
+
+	<sql id="query_condition">
+		<where>
+			<if test="code != null"> code like concat(concat('%',#{code}),'%')</if>
+			<if test="name != null"> and name like concat(concat('%',#{name}),'%')</if>
+			<if test="idCard != null"> and id_card like concat(concat('%',#{idCard}),'%')</if>
+			<if test="sex != null"> and sex = #{sex}</if>
+			<if test="contact != null"> and phone like concat(concat('%',#{contact}),'%')</if>
+			<if test="address != null"> and address like concat(concat('%',#{address}),'%')</if>
+			<if test="linkman != null"> and linkman like concat(concat('%',#{linkman}),'%')</if>
+		</where>
+	</sql>
+
+	<insert id="insertPatientFile">
+		insert into cs_patient
+		<trim prefix="(" suffix=")">
+			<if test="id != null">id,</if>
+			<if test="code != null">code,</if>
+			<if test="idCard != null">id_card,</if>
+			<if test="name != null">name,</if>
+			<if test="balance != null">balance,</if>
+			<if test="address != null">address,</if>
+			<if test="linkman != null">linkman,</if>
+			<if test="sex != null">sex,</if>
+			<if test="phone != null">phone</if>
+		</trim>
+		value
+		<trim prefix="(" suffix=")">
+			<if test="id != null">#{id},</if>
+			<if test="code != null">#{code},</if>
+			<if test="idCard != null">#{idCard},</if>
+			<if test="name != null">#{name},</if>
+			<if test="balance != null">#{balance},</if>
+			<if test="address != null">#{address},</if>
+			<if test="linkman != null">#{linkman},</if>
+			<if test="sex != null">#{sex},</if>
+			<if test="phone != null">#{phone}</if>
+		</trim>
+	</insert>
+
+	<select id="selectPatientFileList" resultMap="patientlistinfo"
+		parameterType="org.r.system.cs.util.dto.SearchConditionDTO">
+		select 
+		<include refid="patient_table"/>
+		from cs_patient
+		<include refid="query_condition" />
+		limit #{curPage},#{pageSize}
+	</select>
+
+	<select id="countPatientListLength" resultType="int"
+		parameterType="org.r.system.cs.util.dto.SearchConditionDTO">
+		select count(*)
+		from cs_patient
+		<include refid="query_condition" />
+	</select>
+
+	<select id="selectPatientFile"
+		resultType="org.r.system.cs.entity.baseinfo.PatientEntity">
+		select id,code,id_card
+		as
+		idCard,name,sex,balance,address,phone,linkman from cs_patient
+		where
+		code = #{code}
+	</select>
+	<select id="selectPatientFileByIdCard"
+		resultType="org.r.system.cs.entity.baseinfo.PatientEntity">
+		select id,code,id_card as
+		idCard,name,sex,balance,address,phone,linkman from cs_patient
+		where
+		id_card = #{idCard}
+
+	</select>
+
+	<update id="updatePatientFile">
+		update cs_patient
+		<set>
+			<if test="idCard != null">id_card = #{idCard},</if>
+			<if test="name != null">name = #{name},</if>
+			<if test="sex != null">sex = #{sex},</if>
+			<if test="address != null">address = #{address},</if>
+			<if test="phone != null">phone = #{phone},</if>
+			<if test="linkman != null">linkman = #{linkman},</if>
+		</set>
+		where code = #{code}
+	</update>
+
+
+	<insert id="insertTranscationRecord">
+		insert into
+		cs_transaction_record(code,money,date_time,patient_id,type,pay_man)
+		value(#{code},#{money},#{dateTime},#{patientId},#{type},#{payMan})
+	</insert>
+
+	<insert id="insertArrearageReacord">
+		insert into
+		cs_arrearage_info(date,record_code,project_id,patient_id,hospital_name,money)
+		value(#{date},#{recordCode},#{projectId},#{patientId},#{hospitalName},#{money})
+	</insert>
+
+	<update id="updatePatientBalance">
+		update cs_patient set balance = #{balance} where code
+		= #{code}
+
+	</update>
+
+	<select id="selectTransactionList"
+		resultType="org.r.system.cs.entity.baseinfo.TransactionEntity">
+		select tr.code,money,date_time as dateTime ,type,pay_man as payMan
+		from cs_transaction_record
+		tr
+		left join cs_patient pa on
+		tr.patient_id=pa.id
+		where pa.code=#{code}
+		<if test="startDate != null">
+		<![CDATA[
+		and DATE_FORMAT(#{startDate},"%Y-%m-%d") <=
+		DATE_FORMAT(date_time,"%Y-%m-%d")
+		 ]]>
+		</if>
+		<if test="endDate != null">
+		<![CDATA[
+		and DATE_FORMAT(#{endDate},"%Y-%m-%d") >=
+		DATE_FORMAT(date_time,"%Y-%m-%d")
+		 ]]>
+		</if>
+		limit #{curPage},#{pageSize}
+	</select>
+
+	<select id="countTransactionListLength" resultType="int">
+		select count(*) from cs_transaction_record tr
+		left join cs_patient pa
+		on tr.patient_id=pa.id
+		where pa.code=#{code}
+		<if test="startDate != null">
+		<![CDATA[
+		and DATE_FORMAT(#{startDate},"%Y-%m-%d") <=
+		DATE_FORMAT(date_time,"%Y-%m-%d")
+		 ]]>
+		</if>
+		<if test="endDate != null">
+		<![CDATA[
+		and DATE_FORMAT(#{endDate},"%Y-%m-%d") >=
+		DATE_FORMAT(date_time,"%Y-%m-%d")
+		 ]]>
+		</if>
+	</select>
+
+	<select id="selectArrearageList"
+		resultType="org.r.system.cs.entity.baseinfo.ArrearageEntity">
+		select date,record_code as recordCode,project_id as
+		projectId,hospital_name as hospitalName,money from cs_arrearage_info
+		tr
+		left join cs_patient pa on tr.patient_id=pa.id
+		where pa.code=#{code}
+		<if test="startDate != null">
+		<![CDATA[
+		and DATE_FORMAT(#{startDate},"%Y-%m-%d") <=
+		DATE_FORMAT(date,"%Y-%m-%d")
+		 ]]>
+		</if>
+		<if test="endDate != null">
+		<![CDATA[
+		and DATE_FORMAT(#{endDate},"%Y-%m-%d") >=
+		DATE_FORMAT(date,"%Y-%m-%d")
+		 ]]>
+		</if>
+		limit #{curPage},#{pageSize}
+	</select>
+
+	<select id="countArrearageListLength" resultType="int">
+		select count(*) from cs_arrearage_info
+		tr
+		left join cs_patient pa on
+		tr.patient_id=pa.id
+		where pa.code=#{code}
+		<if test="startDate != null">
+		<![CDATA[
+		and DATE_FORMAT(#{startDate},"%Y-%m-%d") <=
+		DATE_FORMAT(date,"%Y-%m-%d")
+		 ]]>
+		</if>
+		<if test="endDate != null">
+		<![CDATA[
+		and DATE_FORMAT(#{endDate},"%Y-%m-%d") >=
+		DATE_FORMAT(date,"%Y-%m-%d")
+		 ]]>
+		</if>
+	</select>
+
+
+</mapper>

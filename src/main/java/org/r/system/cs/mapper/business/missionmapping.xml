@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.business.MissionDao">
+
+
+	<sql id="mission_detail_to_history_column_map">
+		patient_name as patientName,
+		patient_code as patientCode,
+		order_id as orderId,
+		order_code as orderCode,
+		careworker_id as
+		careworkerId,
+		careworker_code as careworkerCode,
+		careworker_name as
+		careworkerName,
+		mission_date as missionDate,
+		request_code as
+		requestCode,
+		clerk as clerk,
+		bed_num as bedNum,
+		request_start_date as
+		requestStartDate,
+		request_end_date as requestEndDate,
+		care_type_name as
+		careTypeName,
+		care_type_price as careTypePrice,
+		care_type_property as
+		careTypePorperty,
+		care_type_settle_type as careTypeSettleType,
+		org_name
+		as orgName,
+		org_id as orgId
+	</sql>
+	<sql id="mission_info_column">
+		distinct
+		patient_name as patientName,
+		patient_code as patientCode,
+		order_id as orderId,
+		order_code as orderCode,
+		request_code as requestCode,
+		clerk as clerk,
+		bed_num as bedNum,
+		request_start_date as requestStartDate,
+		request_end_date as requestEndDate,
+		mission_date as missionDate,
+		care_type_name as careTypeName,
+		care_type_price as careTypePrice,
+		care_type_property as careTypePorperty,
+		care_type_settle_type as
+		careTypeSettleType,
+		org_name as orgName,
+		org_id as orgId
+	</sql>
+	<sql id="mission_detial_column">
+		careworker_id as careworkerId,
+		careworker_code as
+		careworkerCode,
+		careworker_name as careworkerName,
+		mission_date as
+		missionDate,
+		request_code as requestCode
+	</sql>
+
+	<sql id="query_mission_detail_condition">
+		<where>
+			<if test="careworkerName != null">
+				careworker_name like
+				concat(concat('%',#{careworkerName}),'%')
+			</if>
+			<if test="name != null">
+				and patient_name like concat(concat('%',#{name}),'%')
+			</if>
+			<if test="orgId != null">
+				and org_id = #{orgId}
+			</if>
+			<if test="isDisabled != null and isDisabled">
+				and mission_date is null and request_end_date is null
+			</if>
+			<if test="requestCode != null">
+				and request_code = #{requestCode}
+			</if>
+			<if test="projectId != null">
+				and project_id = #{projectId}
+			</if>
+		</where>
+	</sql>
+
+	<sql id="query_mission_lsit">
+		select
+		<include refid="mission_info_column" />
+		from cs_view_dispath_history
+		<include refid="query_mission_detail_condition" />
+	</sql>
+
+	<insert id="insertFile">
+		insert into
+		cs_mission(careworker_id,code,request_code,date_time)
+		value(#{careworkerId},#{code},#{requestCode},#{dateTime})
+	</insert>
+
+	<select id="selectMissionList"
+		resultType="org.r.system.cs.dto.business.MissionDetailInfoDTO">
+		<include refid="query_mission_lsit"/>
+		<if test="pageSize != null">
+			limit #{curPage},#{pageSize}
+		</if>
+	</select>
+
+	<select id="countFileList" resultType="int">
+		select count(*)
+		from (<include refid="query_mission_lsit"/>) aa
+	</select>
+
+	<select id="selectMissionDetailList"
+		resultType="org.r.system.cs.dto.business.MissionDetailInfoDTO">
+		select
+		<include refid="mission_detial_column" />
+		from cs_view_dispath_history
+		<include refid="query_mission_detail_condition" />
+	</select>
+
+</mapper>

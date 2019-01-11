@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.business.DocFileDao">
+
+
+	<sql id="doc_file_table_column">
+		id,
+		name,
+		start_code,
+		current_code,
+		end_code,
+		project_id
+	</sql>
+
+	<sql id="query_list_condition">
+		<where>
+			<if test="name != null">
+				name like concat(concat('%',#{name}),'%')
+			</if>
+			<if test="projectId != null">
+				project_id = #{projectId}
+			</if>
+		</where>
+	</sql>
+
+	<resultMap
+		type="org.r.system.cs.entity.business.DocFileEntity"
+		id="doc_file_enetity">
+		<result column="id" property="id" />
+		<result column="name" property="name" />
+		<result column="start_code" property="startCode" />
+		<result column="current_code" property="currentCode" />
+		<result column="end_code" property="endCode" />
+		<result column="project_id" property="projectId" />
+
+	</resultMap>
+
+	<insert id="insertFile" useGeneratedKeys="true" keyColumn="id"
+		keyProperty="id">
+		insert into
+		cs_doc_info(name,start_code,current_code,end_code,project_id)
+		value(#{name},#{startCode},#{currentCode},#{endCode},#{projectId})
+	</insert>
+
+	<select id="selectFile" resultMap="doc_file_enetity">
+		select
+		<include refid="doc_file_table_column" />
+		from cs_doc_info
+		where id = #{primaryKey}
+	</select>
+
+	<update id="updateFile">
+		update cs_doc_info
+		<set>
+			<if test="name != null and name !=''">
+				name=#{name},
+			</if>
+			<if test="startCode != null and startCode !=''">
+				start_code=#{startCode},
+			</if>
+			<if test="currentCode != null and currentCode !=''">
+				current_code=#{currentCode},
+			</if>
+			<if test="endCode != null and endCode !=''">
+				end_code=#{endCode},
+			</if>
+		</set>
+		where id = #{id}
+	</update>
+
+	<select id="selectFileList" resultMap="doc_file_enetity">
+		select
+		<include refid="doc_file_table_column" />
+		from cs_doc_info
+		<include refid="query_list_condition" />
+		<if test="pageSize != null">
+			limit #{curPage},#{pageSize}
+		</if>
+	</select>
+
+	<select id="countFileList" resultType="int">
+		select
+		count(*)
+		from cs_doc_info
+		<include refid="query_list_condition" />
+	</select>
+
+
+</mapper>

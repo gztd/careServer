@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.business.DutyInfoDao">
+
+
+	<sql id="duty_detial_info_view_column">
+		careworker_id,
+		careworker_code,
+		careworker_name,
+		year,
+		month,
+		day,
+		schedule,
+		property,
+		day_index,
+		is_worked,
+		org_id,
+		org_name,
+		project_id
+	</sql>
+	<sql id="duty_info_column">
+		careworker_id,
+		careworker_code,
+		careworker_name,
+		year,
+		month,
+		day,
+		schedule,
+		property,
+		day_index,
+		is_worked,
+		project_id
+	</sql>
+	<sql id="query_duty_info_condition">
+		<where>
+			<if test="careworkerName != null">
+				careworker_name like
+				concat(concat('%',#{careworkerName}),'%')
+			</if>
+			<if test="startDate != null and endDate != null">
+				<![CDATA[
+				and date_format(concat(concat(concat(concat(year,'-'),month),'-'),day),"%Y-%m-%d") >=
+				date_format(#{startDate},"%Y-%m-%d")
+				and date_format(concat(concat(concat(concat(year,'-'),month),'-'),day),"%Y-%m-%d") <=
+				date_format(#{endDate},"%Y-%m-%d")
+				]]>
+			</if>
+			<if test="orgId != null">
+				and org_id = #{orgId}
+			</if>
+		</where>
+	</sql>
+
+	<resultMap type="map" id="duty_info_detial">
+		<result column="careworker_id" property="careworkerId" />
+		<result column="careworker_code" property="careworkerCode" />
+		<result column="careworker_name" property="careworkerName" />
+		<result column="year" property="year" />
+		<result column="month" property="month" />
+		<result column="day" property="day" />
+		<result column="schedule" property="schedule" />
+		<result column="property" property="property" />
+		<result column="day_index" property="dayIndex" />
+		<result column="is_worked" property="isWorked" />
+		<result column="org_id" property="orgId" />
+		<result column="org_name" property="orgName" />
+		<result column="project_id" property="projectId" />
+	</resultMap>
+
+	<insert id="insertFile">
+		insert into cs_duty_info
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			careworker_id,
+			year,
+			month,
+			day,
+			<if test="dayIndex != null">
+				day_index,
+			</if>
+			<if test="isWorked != null">
+				is_worked,
+			</if>
+			<if test="schedule != null">
+				schedule,
+			</if>
+			<if test="property != null">
+				property
+			</if>
+		</trim>
+		value
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			#{careworkerId},
+			#{year},
+			#{month},
+			#{day},
+			<if test="dayIndex != null">
+				#{dayIndex},
+			</if>
+			<if test="isWorked != null">
+				#{isWorked},
+			</if>
+			<if test="schedule != null">
+				#{schedule},
+			</if>
+			<if test="property != null">
+				#{property}
+			</if>
+		</trim>
+	</insert>
+
+	<select id="selectDutyInfoDetail" resultMap="duty_info_detial">
+		select distinct
+		<include refid="duty_info_column" />
+		from cs_view_duty_detial_info
+		<include refid="query_duty_info_condition" />
+		<if test="pageSize != null">
+			limit #{curPage},#{pageSize}
+		</if>
+	</select>
+	
+	<select id="countFileList" resultType="int">
+		select count(*)
+		from cs_view_duty_detial_info
+		<include refid="query_duty_info_condition" />
+	</select>
+	
+	<update id="updateFile">
+		update cs_duty_info
+		set is_worked = #{isWorked}
+		where careworker_id = #{careworkerId}
+		and year = #{year}
+		and month = #{month}
+		and day = #{day}
+	</update>
+	
+	<delete id="deleteFile">
+		delete from cs_duty_info
+		where careworker_id = #{careworkerId}
+		and year = #{year}
+		and month = #{month}
+		and day = #{day}
+		and property = #{property}
+	
+	</delete>
+
+</mapper>

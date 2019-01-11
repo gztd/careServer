@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.authorization.ProjectFileDao">
+
+	<sql id="query_project_list">
+		from cs_business_db
+		<where>
+			<if test="projectName != null">
+				name like concat('%',concat(#{projectName},'%'))
+			</if>
+			<if test="isDisabled != null">
+				is_disabled = #{isDisabled}
+			</if>
+		</where>
+	</sql>
+	
+	<resultMap type="map" id="project_list">
+		<result property="id" column="id"/>
+		<result property="code" column="code"/>
+		<result property="name" column="name"/>
+		<result property="isDisabled" column="is_disabled"/>
+		<result property="creator" column="creator"/>
+		<result property="createTime" column="create_time"/>
+	</resultMap>
+
+	<insert id="insertProjectFile">
+		insert into cs_business_db
+		<trim prefix="(" suffix=")">
+			code,
+			<if test="name != null">
+				name,
+			</if>
+			url,
+			<if test="isDisabled != null">
+				is_disabled,
+			</if>
+			<if test="createTime != null">
+				create_time,
+			</if>
+			<if test="creator != null">
+				creator,
+			</if>
+			driver,
+			username,
+			password
+		</trim>
+		value
+		<trim prefix="(" suffix=")">
+			#{code},
+			<if test="name != null">
+				#{name},
+			</if>
+			#{url},
+			<if test="isDisabled != null">
+				#{is_disabled},
+			</if>
+			<if test="createTime != null">
+				#{createTime},
+			</if>
+			<if test="creator != null">
+				#{creator},
+			</if>
+			#{driver},
+			#{username},
+			#{password}
+		</trim>
+	</insert>
+	
+	
+	<update id="updateProjectFile">
+		update cs_business_db
+		<set>
+			<if test="url != null">url=#{url}</if>
+			<if test="name != null">name = #{name}</if>
+			<if test="isDisabled != null">is_disabled = #{isDisabled}</if>
+			<if test="driver != null">driver = #{driver}</if>
+			<if test="username != null">username = #{username}</if>
+			<if test="password != null">password = #{password}</if>
+		</set>
+		<where>
+			id = #{id}
+		</where>
+	</update>
+	
+	
+	<select id="selectProjectFile" resultType="org.r.system.cs.entity.authorization.ProjectFileEntity">
+		select id,code,name,url,is_disabled as isDisabled,DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') as createTime,creator,driver,username,password
+		from cs_business_db
+		where 
+		id = #{projectId}
+	</select>
+	
+	<select id="selectProjectFileList" resultMap="project_list">
+		select id,code,name,is_disabled,creator,DATE_FORMAT(create_time,'%Y-%m-%d %H:%i:%s') as create_time
+		<include refid="query_project_list"/>
+		limit #{curPage},#{pageSize}
+	</select>
+
+	<select id="countProjectFileListLength" resultType="int">
+		select count(*)
+		<include refid="query_project_list"/>
+	</select>
+
+</mapper>

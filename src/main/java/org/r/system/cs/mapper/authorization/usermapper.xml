@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.authorization.UserFileDao">
+
+
+	<resultMap type="map" id="userlist">
+		<result column="username" property="username"/>
+		<result column="nickname" property="nickname"/>
+		<result column="is_disabled" property="isDisabled"/>
+	</resultMap>
+
+	<insert id="insertUserFile" parameterType="org.r.system.cs.entity.authorization.UserFileEntity">
+		insert into cs_user(username,password,icon,nickname) 
+		value(#{username},#{password},#{icon},#{nickname})
+	</insert>
+	
+	<select id="selectUserFile" resultType="org.r.system.cs.entity.authorization.UserFileEntity">
+		select username,password,is_locked as isLocked,is_disabled as isDisabled,icon,nickname
+		from cs_user
+		where username = #{username}
+	</select>
+	
+	<update id="updateUserFile" >
+		update cs_user 
+		<set>
+			<if test="password != null">
+				password=#{password},
+			</if>
+			<if test="isLocked != null">
+				is_locked = #{isLocked},
+			</if>
+			<if test="isDisabled != null">
+				is_disabled = #{isDisabled},
+			</if>
+			<if test="icon != null">
+				icon = #{icon},
+			</if>
+			<if test="nickname != null">
+				nickname = #{nickname},
+			</if>
+				username = username
+		</set>
+		where username = #{username}
+	</update>
+	
+	<select id="selectUserFileList" resultMap="userlist">
+		select username,nickname,is_disabled
+		from cs_user
+		where 1=1 and username != "admin"
+		<if test="username != null">
+			and username like concat('%',concat(#{username},'%'))
+		</if>
+		<if test="nickname != null">
+			and nickname like concat('%',concat(#{nickname},'%'))
+		</if>
+		<if test="isDisabled != null">
+			and is_disabled = #{isDisabled}
+		</if>
+		limit #{curPage},#{pageSize}
+	</select>
+	
+	<select id="countUserFileListLength" resultType="int">
+		select count(username)
+		from cs_user
+		where 1=1
+		<if test="username != null">
+			and username like concat('%',concat(#{username},'%'))
+		</if>
+		<if test="nickname != null">
+			and nickname like concat('%',concat(#{nickname},'%'))
+		</if>
+		<if test="isDisabled != null">
+			and is_disabled = #{isDisabled}
+		</if>
+	</select>
+	
+
+</mapper>
