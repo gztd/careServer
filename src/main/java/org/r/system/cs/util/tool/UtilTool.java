@@ -308,7 +308,8 @@ public class UtilTool {
 		} catch (ParseException e) {
 			log.error(e.getMessage(), e);
 		}
-		return ((to1 - from1) * 1.0 / (1000 * 60 * 60 * 24));
+		double deltaTime = ((to1 - from1) * 1.0 / (1000 * 60 * 60 * 24));
+		return deltaTime;
 	}
 
 	public static int mapDayIndex(String dateTime) {
