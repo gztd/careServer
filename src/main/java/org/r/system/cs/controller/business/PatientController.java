@@ -7,6 +7,7 @@
  */
 package org.r.system.cs.controller.business;
 
+import java.util.List;
 import java.util.Map;
 
 import org.r.system.cs.dto.baseinfo.TransactionInfoDTO;
@@ -98,15 +99,31 @@ public class PatientController {
 
 		if (condition.getProjectId() == null)
 			return new MsgDTO("400", "项目信息不能为空");
-
-		try {
-			Map<String, Object> list = patientService.getHospitalizedList(condition);
-			PageDTO page = new PageDTO(condition.getPageSize(), condition.getCurPage(), (Integer) list.get("size"));
-			page.setResult(list.get("result"));
-			msg = new MsgDTO("200", page);
-		} catch (FileSelectException e) {
-			log.error(e.getMessage(), e);
-			msg = new MsgDTO("400", e.getMsg());
+		SearchConditionDTO workingCondition = condition;
+		if(condition.getOrgId() != null){
+			// 处理查询指定陪护人员科室信息
+			Integer pageSize = condition.getPageSize();
+			Integer curPage = condition.getCurPage();
+			condition.setPageSize(5000);
+			try {
+				Map<String, Object> list = patientService.getHospitalizedList(condition);
+				PageDTO page = new PageDTO(1,1,((List)list.get("result")).size());
+				page.setResult(list.get("result"));
+				msg = new MsgDTO("200", page);
+			} catch (FileSelectException e) {
+				log.error(e.getMessage(), e);
+				msg = new MsgDTO("400", e.getMsg());
+			}
+		}else {
+			try {
+				Map<String, Object> list = patientService.getHospitalizedList(condition);
+				PageDTO page = new PageDTO(condition.getPageSize(), condition.getCurPage(), (Integer) list.get("size"));
+				page.setResult(list.get("result"));
+				msg = new MsgDTO("200", page);
+			} catch (FileSelectException e) {
+				log.error(e.getMessage(), e);
+				msg = new MsgDTO("400", e.getMsg());
+			}
 		}
 
 		return msg;
