@@ -146,18 +146,19 @@ public class RequestServiceImpl implements RequestService {
 			throw new LeaveException("服务请求单不存在，统计一张服务请求单总金额出错");
 		}
 
-		String startDate = request.getStartDateTime().toString();
-		String endDate = request.getEndDateTime().toString();
-		double days = UtilTool.getDayDifference(request.getStartDateTime().toString(),
-				request.getEndDateTime().toString());
-
-		if (days < 0) {
+		String startDate = request.getStartDateTime().toString().substring(0,19);
+		String endDate = request.getEndDateTime().toString().substring(0,19);
+		double MIN_FREE_TIME = 1.0/24;// TO-DO:1小时以内结束服务，不计算服务天数，后续可以改
+        String formatStr = "yyyy-MM-dd HH:mm:ss";
+        double delta = UtilTool.getDayDiffernece(startDate,endDate,formatStr);
+		if (delta <= MIN_FREE_TIME) {
 			request.setDays(0.0);
 			request.setAmount(0.0);
 			// throw new LeaveException("服务时间异常，不可能出现负数时间差");
 			return 0.0;
 		}
-			
+        double days = UtilTool.getDayDifference(startDate,endDate);
+
 		if (UtilTool.mapDayIndex(startDate) == 2)
 			days -= 0.5;
 		if (UtilTool.mapDayIndex(endDate) == 1)
