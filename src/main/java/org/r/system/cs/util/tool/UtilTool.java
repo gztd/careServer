@@ -22,6 +22,7 @@ public class UtilTool {
 	private static final Random randomer = new Random();
 	private static final String DATESTRING = "yyyy-MM-dd";
 	private static final String DATETIMESTRING = "yyyy-MM-dd HH:mm:ss";
+	private static final Double  MIN_FREE_TIME = 1.0/24; // service time < 1.0/24,free
 
 	/**
 	 * @author Casper
@@ -322,6 +323,22 @@ public class UtilTool {
 			return 2;
 		else
 			return 1;
+	}
+	public static double getPatientServiceDay(String beginServiceDate,String endServiceDate){
+		String startDate = beginServiceDate.substring(0,19);
+		String endDate = endServiceDate.substring(0,19);
+		double delta = UtilTool.getDayDiffernece(startDate,endDate,DATETIMESTRING);
+		if (delta <= MIN_FREE_TIME) {
+			return 0.0;
+		}
+		double days = UtilTool.getDayDifference(startDate,endDate);
+		if (UtilTool.mapDayIndex(startDate) == 2)
+			days -= 0.5;
+		if (UtilTool.mapDayIndex(endDate) == 1)
+			days -= 0.5;
+		days = days <= 0.5 ? 0.5 : days;
+		return days;
+
 	}
 
 }
