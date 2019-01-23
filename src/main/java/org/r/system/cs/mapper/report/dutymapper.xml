@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.report.DutyFileReportDao">
+
+	<select id="selectFileList" resultType="org.r.system.cs.entity.report.DutyEntity">
+		select
+		careworker_id as careworkerId,
+		day,
+		month,
+		year,
+		day_index as dayIndex,
+		is_worked as isWorked,
+		schedule,
+		property
+		from cs_duty_info
+		<where>
+			<if test="careworkerId != null">
+				careworker_id = #{careworkerId}
+			</if>
+			<if test="date != null">
+				and date_format(concat(concat(concat(concat(year,'-'),month),'-'),day),'%Y-%m-%d') = date_format(#{date},'%Y-%m-%d')
+			</if>
+		</where>
+	</select>
+
+</mapper>

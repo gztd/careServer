@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.report.RequestReportDao">
+
+
+	<sql id="query_request_entity">
+		select
+		code,
+		order_id as orderId,
+		care_type_id as careTypeId,
+		start_date_time as startDateTime,
+		end_date_time as endDateTime,
+		bed_num as bedNum,
+		clerk
+		from
+		cs_service_request
+	</sql>
+
+
+
+
+
+	<select id="selectFile"></select>
+	<select id="selectFileList"></select>
+
+
+	<select id="selectRequest"
+		resultType="org.r.system.cs.entity.report.RequestEntity">
+		<include refid="query_request_entity" />
+		where order_id = #{orderId}
+	</select>
+
+	<select id="selectRequestDetail"
+		resultType="org.r.system.cs.entity.report.RequestDetailEntity">
+		select
+		cs_view_request_detail.code,
+		order_id as orderId,
+		care_type_id as careTypeId,
+		start_date_time as startDateTime,
+		end_date_time as endDateTime,
+		bed_num as bedNum,
+		cs_view_request_detail.clerk,
+		care_type_name as
+		careTypeName,
+		price,
+		property,
+		settle_type as settleType,
+		salary_index as salaryIndex,
+		org_id as orgId,
+		org_name as orgName,
+		patient_code as patientCode,
+		name as patientName,
+		hospitalized_date as hospitalDate,
+		leave_date as leaveDate,
+		balance as pay,
+		bed_num as bedNum
+		from cs_view_request_detail left join cs_service_order on cs_view_request_detail.order_id = cs_service_order.id
+		<where>
+			<if test="orderId != null">
+				and cs_view_request_detail.order_id = #{orderId}
+			</if>
+			<if test="code != null">
+				and cs_view_request_detail.code = #{code}
+			</if>
+			<if test="orgId != null">
+				and cs_view_request_detail.org_id = #{orgId}
+			</if>
+			<if test="projectId != null">
+				and cs_view_request_detail.project_id = #{projectId}
+			</if>
+			<if test="date != null">
+				<![CDATA[
+				and date_format(cs_view_request_detail.start_date_time,"%Y-%m-%d") <=
+				date_format(#{date},"%Y-%m-%d")
+				and date_format(cs_view_request_detail.end_date_time,"%Y-%m-%d") >=
+				date_format(#{date},"%Y-%m-%d")
+			]]>
+			</if>
+		</where>
+		<if test="isNewly != null and isNewly">
+			order by start_date_time desc
+			limit 1
+		</if>
+	</select>
+
+</mapper>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.report.CareworkerReportDao">
+
+	<sql id="careworker_column">
+		id,
+		code,
+		name,
+		project_id as projectId
+	</sql>
+	
+	<sql id="query_carewoker_list_view">
+		from
+		cs_careworker cw
+		left join cs_join jo on cw.id = jo.careworker_id
+		left
+		join cs_organization org on jo.org_id = org.id
+		<where>
+			<if test="date != null">
+				<![CDATA[
+				date_format(start_date_time,"%Y-%m-%d") <=
+				date_format(#{date},"%Y-%m-%d")
+				and date_format(end_date_time,"%Y-%m-%d") >=
+				date_format(#{date},"%Y-%m-%d")
+			]]>
+			</if>
+			<if test="projectId != null">
+				and org.project_id = #{projectId}
+			</if>
+		</where>
+	</sql>
+
+
+	<select id="selectFileList"
+		resultType="org.r.system.cs.entity.report.CareworkerEntity">
+		select
+		cw.id,
+		cw.code,
+		cw.name,
+		cw.project_id as projectId
+		<include refid="query_carewoker_list_view"/>
+	</select>
+
+	<select id="selectCareworkDetail"
+		resultType="org.r.system.cs.dto.report.CareworkerDetialDTO">
+		select
+		cw.id,
+		cw.code,
+		cw.name,
+		cw.project_id as projectId,
+		org.id as orgId,
+		org.name as orgName
+		<include refid="query_carewoker_list_view"/>
+	</select>
+
+</mapper>

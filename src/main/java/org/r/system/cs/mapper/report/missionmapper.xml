@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.r.system.cs.dao.report.MissionReportDao">
+
+	<select id="selectMissionList" resultType="org.r.system.cs.entity.report.MissionEntity">
+		select
+		careworker_id as careworkerId,
+		request_code as requestCode,
+		date_time as date,
+		code
+		from cs_mission
+		<where>
+			<if test="code">
+				request_code = #{code}
+			</if>
+		</where>
+	</select>
+
+</mapper>
