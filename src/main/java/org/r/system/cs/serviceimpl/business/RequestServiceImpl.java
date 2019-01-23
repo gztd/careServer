@@ -146,6 +146,16 @@ public class RequestServiceImpl implements RequestService {
 			throw new LeaveException("服务请求单不存在，统计一张服务请求单总金额出错");
 		}
 
+		Double days = UtilTool.getPatientServiceDay(request.getStartDateTime().toString()
+				,request.getEndDateTime().toString());
+		request.setDays(days);
+		double index = (request.getSettleType() == 2 ? 1.0 : days);
+		total += request.getPrice() * index;
+		request.setDays(days);
+		request.setAmount(total);
+		return total;
+		/*
+
 		String startDate = request.getStartDateTime().toString().substring(0,19);
 		String endDate = request.getEndDateTime().toString().substring(0,19);
 		double MIN_FREE_TIME = 1.0/24;// TO-DO:1小时以内结束服务，不计算服务天数，后续可以改
@@ -170,6 +180,7 @@ public class RequestServiceImpl implements RequestService {
 		request.setDays(days);
 		request.setAmount(total);
 		return total;
+		*/
 	}
 
 }
